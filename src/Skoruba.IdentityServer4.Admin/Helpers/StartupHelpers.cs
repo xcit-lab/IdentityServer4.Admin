@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using IdentityModel;
 using IdentityServer4.EntityFramework.Options;
+using IdentityServer4.EntityFramework.Storage;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Builder;
@@ -28,6 +29,7 @@ using Skoruba.IdentityServer4.Admin.Middlewares;
 using Skoruba.IdentityServer4.Admin.Configuration;
 using Skoruba.IdentityServer4.Admin.Configuration.Constants;
 using Skoruba.IdentityServer4.Admin.Configuration.Interfaces;
+using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.Helpers
 {
@@ -47,7 +49,36 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
             services.AddDbContext<TContext>(options => options.UseSqlServer(configuration.GetConnectionString(ConfigurationConsts.AdminConnectionStringKey), optionsSql => optionsSql.MigrationsAssembly(migrationsAssembly)));
         }
 
-        public static void RegisterDbContextsStaging<TContext>(this IServiceCollection services)
+		public static void RegisterDbContexts<TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext>(this IServiceCollection services, IConfigurationRoot configuration)
+		where TPersistedGrantDbContext : DbContext, IAdminPersistedGrantDbContext
+		where TConfigurationDbContext : DbContext, IAdminConfigurationDbContext
+		where TLogDbContext : DbContext, IAdminLogDbContext
+		{
+			// Config DB from existing connection
+			services.AddConfigurationDbContext<TConfigurationDbContext>(options =>
+			{
+				options.ConfigureDbContext = b =>
+					b.UseSqlServer(configuration.GetConnectionString(ConfigurationConsts.ConfigurationDbConnectionStringKey),
+						sql => sql.MigrationsAssembly(configuration.GetConnectionString(ConfigurationConsts.ConfigurationDbMigrationsAssemblyKey)));
+			});
+
+			// Operational DB from existing connection
+			services.AddOperationalDbContext<TPersistedGrantDbContext>(options =>
+			{
+				options.ConfigureDbContext = b =>
+					b.UseSqlServer(configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbConnectionStringKey),
+						sql => sql.MigrationsAssembly(configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbMigrationsAssemblyKey)));
+			});
+
+			// Log DB from existing connection
+			var defaultMigrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
+			services.AddDbContext<TLogDbContext>(options => 
+				options.UseSqlServer(
+					configuration.GetConnectionString(ConfigurationConsts.AdminLogDbConnectionStringKey), 
+					optionsSql => optionsSql.MigrationsAssembly(defaultMigrationsAssembly)));
+		}
+
+		public static void RegisterDbContextsStaging<TContext>(this IServiceCollection services)
             where TContext : DbContext
         {
             var databaseName = Guid.NewGuid().ToString();
@@ -61,7 +92,7 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
             services.AddDbContext<TContext>(optionsBuilder => optionsBuilder.UseInMemoryDatabase(databaseName));
         }
 
-        public static void UseSecurityHeaders(this IApplicationBuilder app)
+		public static void UseSecurityHeaders(this IApplicationBuilder app)
         {
             app.UseForwardedHeaders(new ForwardedHeadersOptions()
             {
@@ -139,7 +170,23 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
             }
         }
 
-        public static void AddAuthorizationPolicies(this IServiceCollection services)
+		public static void AddDbContexts<TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext>(this IServiceCollection services, IHostingEnvironment hostingEnvironment, IConfigurationRoot configuration)
+		where TPersistedGrantDbContext : DbContext, IAdminPersistedGrantDbContext
+		where TConfigurationDbContext : DbContext, IAdminConfigurationDbContext
+		where TLogDbContext : DbContext, IAdminLogDbContext
+		{
+			if (hostingEnvironment.IsStaging())
+			{
+				//services.RegisterDbContextsStaging<TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext>();
+				throw new NotImplementedException();
+			}
+			else
+			{
+				services.RegisterDbContexts<TConfigurationDbContext, TPersistedGrantDbContext, TLogDbContext>(configuration);
+			}
+		}
+
+		public static void AddAuthorizationPolicies(this IServiceCollection services)
         {
             services.AddAuthorization(options =>
             {
