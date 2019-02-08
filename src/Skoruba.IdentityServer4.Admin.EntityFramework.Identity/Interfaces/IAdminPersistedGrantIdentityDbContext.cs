@@ -2,7 +2,8 @@
 
 namespace Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Interfaces
 {
-    public interface IAdminPersistedGrantIdentityDbContext : IPersistedGrantDbContext
+	[System.Obsolete("Implement IPersistedGrantDbContext directly.")]
+	public interface IAdminPersistedGrantIdentityDbContext : IPersistedGrantDbContext
     {
     }
 }

@@ -14,6 +14,8 @@
 
 		public const string AdminLogDbConnectionStringKey = "AdminLogDbConnection";
 
+		public const string IdentityDbConnectionStringKey = "IdentityDbConnection";
+
 		public const string NLogConfigurationVariable = "connectionString";
 
         public const string LoggingSectionKey = "Logging";        

@@ -12,13 +12,15 @@ using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories.Interfac
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Shared.Dtos.Common;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Entities;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Interfaces;
+using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
 {
-    public class PersistedGrantAspNetIdentityRepository<TDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> 
-        : IPersistedGrantAspNetIdentityRepository<TDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
-        where TDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>, IAdminPersistedGrantIdentityDbContext
-        where TUser : IdentityUser<TKey> 
+    public class PersistedGrantAspNetIdentityRepository<TIdentityDbContext, TPersistedGrantDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> 
+        : IPersistedGrantAspNetIdentityRepository
+		where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+		where TPersistedGrantDbContext : DbContext, IAdminPersistedGrantDbContext
+		where TUser : IdentityUser<TKey> 
         where TRole : IdentityRole<TKey> 
         where TKey : IEquatable<TKey> 
         where TUserClaim : IdentityUserClaim<TKey> 
@@ -28,21 +30,23 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
         where TUserToken : IdentityUserToken<TKey>
         
     {
-        private readonly TDbContext _dbContext;
+        private readonly TIdentityDbContext _identityDbContext;
+		private readonly TPersistedGrantDbContext _persistentGrantDbContext;
 
-        public bool AutoSaveChanges { get; set; } = true;
+		public bool AutoSaveChanges { get; set; } = true;
 
-        public PersistedGrantAspNetIdentityRepository(TDbContext dbContext)
+        public PersistedGrantAspNetIdentityRepository(TIdentityDbContext identityDbContext, TPersistedGrantDbContext persistentGrantDbContext)
         {
-            _dbContext = dbContext;
-        }
+			_identityDbContext = identityDbContext;
+			_persistentGrantDbContext = persistentGrantDbContext;
+		}
 
         public async Task<PagedList<PersistedGrantDataView>> GetPersitedGrantsByUsers(string search, int page = 1, int pageSize = 10)
         {
             var pagedList = new PagedList<PersistedGrantDataView>();
 
-            var persistedGrantByUsers = (from pe in _dbContext.PersistedGrants
-                                         join us in _dbContext.Users on pe.SubjectId equals us.Id.ToString() into per
+            var persistedGrantByUsers = (from pe in _persistentGrantDbContext.PersistedGrants
+                                         join us in _identityDbContext.Users on pe.SubjectId equals us.Id.ToString() into per
                                          from us in per.DefaultIfEmpty()
                                          select new PersistedGrantDataView
                                          {
@@ -67,7 +71,7 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
         {
             var pagedList = new PagedList<PersistedGrant>();
 
-            var persistedGrantsData = await _dbContext.PersistedGrants.Where(x => x.SubjectId == subjectId).Select(x => new PersistedGrant()
+            var persistedGrantsData = await _persistentGrantDbContext.PersistedGrants.Where(x => x.SubjectId == subjectId).Select(x => new PersistedGrant()
             {
                 SubjectId = x.SubjectId,
                 Type = x.Type,
@@ -78,7 +82,7 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
                 CreationTime = x.CreationTime
             }).PageBy(x => x.SubjectId, page, pageSize).ToListAsync();
 
-            var persistedGrantsCount = await _dbContext.PersistedGrants.Where(x => x.SubjectId == subjectId).CountAsync();
+            var persistedGrantsCount = await _persistentGrantDbContext.PersistedGrants.Where(x => x.SubjectId == subjectId).CountAsync();
 
             pagedList.Data.AddRange(persistedGrantsData);
             pagedList.TotalCount = persistedGrantsCount;
@@ -89,40 +93,40 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
 
         public Task<PersistedGrant> GetPersitedGrantAsync(string key)
         {
-            return _dbContext.PersistedGrants.SingleOrDefaultAsync(x => x.Key == key);
+            return _persistentGrantDbContext.PersistedGrants.SingleOrDefaultAsync(x => x.Key == key);
         }
 
         public async Task<int> DeletePersistedGrantAsync(string key)
         {
-            var persistedGrant = await _dbContext.PersistedGrants.Where(x => x.Key == key).SingleOrDefaultAsync();
+            var persistedGrant = await _persistentGrantDbContext.PersistedGrants.Where(x => x.Key == key).SingleOrDefaultAsync();
 
-            _dbContext.PersistedGrants.Remove(persistedGrant);
+			_persistentGrantDbContext.PersistedGrants.Remove(persistedGrant);
 
             return await AutoSaveChangesAsync();
         }
 
         public Task<bool> ExistsPersistedGrantsAsync(string subjectId)
         {
-            return _dbContext.PersistedGrants.AnyAsync(x => x.SubjectId == subjectId);
+            return _persistentGrantDbContext.PersistedGrants.AnyAsync(x => x.SubjectId == subjectId);
         }
 
         public async Task<int> DeletePersistedGrantsAsync(string userId)
         {
-            var grants = await _dbContext.PersistedGrants.Where(x => x.SubjectId == userId).ToListAsync();
+            var grants = await _persistentGrantDbContext.PersistedGrants.Where(x => x.SubjectId == userId).ToListAsync();
 
-            _dbContext.RemoveRange(grants);
+			_persistentGrantDbContext.RemoveRange(grants);
 
             return await AutoSaveChangesAsync();
         }
 
         private async Task<int> AutoSaveChangesAsync()
         {
-            return AutoSaveChanges ? await _dbContext.SaveChangesAsync() : (int)SavedStatus.WillBeSavedExplicitly;
+            return AutoSaveChanges ? await _persistentGrantDbContext.SaveChangesAsync() : (int)SavedStatus.WillBeSavedExplicitly;
         }
 
         public async Task<int> SaveAllChangesAsync()
         {
-            return await _dbContext.SaveChangesAsync();
+            return await _persistentGrantDbContext.SaveChangesAsync();
         }
     }
 }
