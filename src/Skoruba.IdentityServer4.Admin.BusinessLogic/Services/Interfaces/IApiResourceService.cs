@@ -5,7 +5,7 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services.Interfaces
 {
-    public interface IApiResourceService<TDbContext> where TDbContext : DbContext, IAdminConfigurationDbContext
+    public interface IApiResourceService
     {
         ApiSecretsDto BuildApiSecretsViewModel(ApiSecretsDto apiSecrets);
 

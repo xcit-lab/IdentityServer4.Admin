@@ -29,14 +29,14 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Extensions
             services.AddTransient<IIdentityResourceRepository<TConfigurationDbContext>, IdentityResourceRepository<TConfigurationDbContext>>();
             services.AddTransient<IApiResourceRepository<TConfigurationDbContext>, ApiResourceRepository<TConfigurationDbContext>>();
             services.AddTransient<IPersistedGrantRepository<TPersistedGrantDbContext>, PersistedGrantRepository<TPersistedGrantDbContext>>();
-            services.AddTransient<ILogRepository<TLogDbContext>, LogRepository<TLogDbContext>>();
+            services.AddTransient<ILogRepository, LogRepository<TLogDbContext>>();
 
             //Services
-            services.AddTransient<IClientService<TConfigurationDbContext>, ClientService<TConfigurationDbContext>>();
-            services.AddTransient<IApiResourceService<TConfigurationDbContext>, ApiResourceService<TConfigurationDbContext>>();
-            services.AddTransient<IIdentityResourceService<TConfigurationDbContext>, IdentityResourceService<TConfigurationDbContext>>();
-            services.AddTransient<IPersistedGrantService<TPersistedGrantDbContext>, PersistedGrantService<TPersistedGrantDbContext>>();
-            services.AddTransient<ILogService<TLogDbContext>, LogService<TLogDbContext>>();
+            services.AddTransient<IClientService, ClientService<TConfigurationDbContext>>();
+            services.AddTransient<IApiResourceService, ApiResourceService<TConfigurationDbContext>>();
+            services.AddTransient<IIdentityResourceService, IdentityResourceService<TConfigurationDbContext>>();
+            services.AddTransient<IPersistedGrantService, PersistedGrantService<TPersistedGrantDbContext>>();
+            services.AddTransient<ILogService, LogService<TLogDbContext>>();
 
             //Resources
             services.AddScoped<IApiResourceServiceResources, ApiResourceServiceResources>();

@@ -7,7 +7,7 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services.Interfaces
 {
-    public interface IClientService<TDbContext> where TDbContext : DbContext, IAdminConfigurationDbContext
+    public interface IClientService
     {
         ClientDto BuildClientViewModel(ClientDto client = null);
 

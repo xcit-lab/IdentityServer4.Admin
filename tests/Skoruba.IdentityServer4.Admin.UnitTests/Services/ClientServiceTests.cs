@@ -42,9 +42,9 @@ namespace Skoruba.IdentityServer4.Admin.UnitTests.Services
             return clientRepository;
         }
 
-        private IClientService<AdminDbContext> GetClientService(IClientRepository<AdminDbContext> repository, IClientServiceResources resources)
+        private IClientService GetClientService(IClientRepository<AdminDbContext> repository, IClientServiceResources resources)
         {
-            IClientService<AdminDbContext> clientService = new ClientService<AdminDbContext>(repository, resources);
+            IClientService clientService = new ClientService<AdminDbContext>(repository, resources);
 
             return clientService;
         }

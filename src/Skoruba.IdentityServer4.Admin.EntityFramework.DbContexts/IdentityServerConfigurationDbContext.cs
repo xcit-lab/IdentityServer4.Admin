@@ -6,9 +6,9 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.EntityFramework.DbContexts
 {
-	public class IdentityServerConfigurationDbContext : ConfigurationDbContext, IAdminConfigurationDbContext
+	public class IdentityServerConfigurationDbContext : ConfigurationDbContext<IdentityServerConfigurationDbContext>, IAdminConfigurationDbContext
 	{
-		public IdentityServerConfigurationDbContext(DbContextOptions<ConfigurationDbContext> options, ConfigurationStoreOptions storeOptions) 
+		public IdentityServerConfigurationDbContext(DbContextOptions<IdentityServerConfigurationDbContext> options, ConfigurationStoreOptions storeOptions) 
 			: base(options, storeOptions)
 		{
 		}

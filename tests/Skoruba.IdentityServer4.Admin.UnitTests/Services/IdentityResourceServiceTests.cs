@@ -42,9 +42,9 @@ namespace Skoruba.IdentityServer4.Admin.UnitTests.Services
 			return identityResourceRepository;
 		}
 
-		private IIdentityResourceService<AdminDbContext> GetIdentityResourceService(IIdentityResourceRepository<AdminDbContext> repository, IIdentityResourceServiceResources identityResourceServiceResources)
+		private IIdentityResourceService GetIdentityResourceService(IIdentityResourceRepository<AdminDbContext> repository, IIdentityResourceServiceResources identityResourceServiceResources)
 		{
-			IIdentityResourceService<AdminDbContext> identityResourceService = new IdentityResourceService<AdminDbContext>(repository, identityResourceServiceResources);
+			IIdentityResourceService identityResourceService = new IdentityResourceService<AdminDbContext>(repository, identityResourceServiceResources);
 
 			return identityResourceService;
 		}

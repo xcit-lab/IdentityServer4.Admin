@@ -10,7 +10,7 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services
 {
-    public class PersistedGrantService<TDbContext> : IPersistedGrantService<TDbContext>
+    public class PersistedGrantService<TDbContext> : IPersistedGrantService
         where TDbContext : DbContext, IAdminPersistedGrantDbContext
     {
         private readonly IPersistedGrantRepository<TDbContext> _persistedGrantRepository;

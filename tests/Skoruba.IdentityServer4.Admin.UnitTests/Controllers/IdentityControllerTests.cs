@@ -31,11 +31,11 @@ namespace Skoruba.IdentityServer4.Admin.UnitTests.Controllers
 {
     public class IdentityControllerTests
     {
-        private IIdentityService<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int,
+        private IIdentityService<UserDto<int>, int, RoleDto<int>, int, int, int,
             UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole,
             UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken> GetIdentityService(IServiceProvider services)
         {
-            return services.GetRequiredService<IIdentityService<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int,
+            return services.GetRequiredService<IIdentityService<UserDto<int>, int, RoleDto<int>, int, int, int,
                 UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole,
                 UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>>();
         }

@@ -30,6 +30,7 @@ using Skoruba.IdentityServer4.Admin.Configuration;
 using Skoruba.IdentityServer4.Admin.Configuration.Constants;
 using Skoruba.IdentityServer4.Admin.Configuration.Interfaces;
 using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
+using Skoruba.IdentityServer4.Admin.Controllers;
 
 namespace Skoruba.IdentityServer4.Admin.Helpers
 {
@@ -70,7 +71,7 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
 						sql => sql.MigrationsAssembly(configuration.GetConnectionString(ConfigurationConsts.PersistedGrantDbMigrationsAssemblyKey)));
 			});
 
-			// Log DB from existing connection
+			// Log DB for current assembly
 			var defaultMigrationsAssembly = typeof(Startup).GetTypeInfo().Assembly.GetName().Name;
 			services.AddDbContext<TLogDbContext>(options => 
 				options.UseSqlServer(
@@ -207,12 +208,13 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
 
             services.AddLocalization(opts => { opts.ResourcesPath = ConfigurationConsts.ResourcesPath; });
 
-            services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
-                .AddViewLocalization(
-                    LanguageViewLocationExpanderFormat.Suffix,
-                    opts => { opts.ResourcesPath = ConfigurationConsts.ResourcesPath; })
-                .AddDataAnnotationsLocalization();
+			services.AddMvc()
+				.SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
+				.AddViewLocalization(
+					LanguageViewLocationExpanderFormat.Suffix,
+					opts => { opts.ResourcesPath = ConfigurationConsts.ResourcesPath; })
+				.AddDataAnnotationsLocalization()
+				.ConfigureApplicationPartManager(p => p.FeatureProviders.Add(new IdentityControllerFeatureProvider()));
 
             services.Configure<RequestLocalizationOptions>(
                 opts =>

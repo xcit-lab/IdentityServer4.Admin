@@ -8,12 +8,12 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services
 {
-    public class LogService<TDbContext> : ILogService<TDbContext>
+    public class LogService<TDbContext> : ILogService
         where TDbContext : DbContext, IAdminLogDbContext
     {
-        private readonly ILogRepository<TDbContext> _repository;
+        private readonly ILogRepository _repository;
 
-        public LogService(ILogRepository<TDbContext> repository)
+        public LogService(ILogRepository repository)
         {
             _repository = repository;
         }

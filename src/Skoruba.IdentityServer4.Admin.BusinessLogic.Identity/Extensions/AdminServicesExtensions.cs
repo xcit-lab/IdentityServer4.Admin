@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
+using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Helpers;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Mappers;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Mappers.Configuration;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories;
@@ -100,7 +101,7 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions
             services.AddTransient<IPersistedGrantAspNetIdentityRepository, PersistedGrantAspNetIdentityRepository<TIdentityDbContext, TPersistedGrantDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>>();
           
             //Services
-            services.AddTransient<IIdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>, IdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>>();
+            services.AddTransient<IIdentityService<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>, IdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>>();
             services.AddTransient<IPersistedGrantAspNetIdentityService, PersistedGrantAspNetIdentityService<TIdentityDbContext, TPersistedGrantDbContext, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>>();
             
             //Resources
@@ -111,7 +112,10 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Extensions
             services.AddAdminAspNetIdentityMapping()
                     .UseIdentityMappingProfile<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>();
 
-            return services;
+			//Pre-configure MVC
+			IdentityControllerGenericTypes.ControllerTypes = new Type[] { typeof(TUserDto), typeof(TUserDtoKey), typeof(TRoleDto), typeof(TRoleDtoKey), typeof(TUserKey), typeof(TRoleKey), typeof(TUser), typeof(TRole), typeof(TKey), typeof(TUserClaim), typeof(TUserRole), typeof(TUserLogin), typeof(TRoleClaim), typeof(TUserToken) };
+
+			return services;
         }
     }
 }

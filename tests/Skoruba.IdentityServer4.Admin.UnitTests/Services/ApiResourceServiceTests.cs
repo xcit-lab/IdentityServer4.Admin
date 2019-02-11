@@ -49,16 +49,16 @@ namespace Skoruba.IdentityServer4.Admin.UnitTests.Services
 			return apiResourceRepository;
 		}
 
-		private IClientService<AdminDbContext> GetClientService(IClientRepository<AdminDbContext> repository, IClientServiceResources resources)
+		private IClientService GetClientService(IClientRepository<AdminDbContext> repository, IClientServiceResources resources)
 		{
-			IClientService<AdminDbContext> clientService = new ClientService<AdminDbContext>(repository, resources);
+			IClientService clientService = new ClientService<AdminDbContext>(repository, resources);
 
 			return clientService;
 		}
 
-		private IApiResourceService<AdminDbContext> GetApiResourceService(IApiResourceRepository<AdminDbContext> repository, IApiResourceServiceResources resources, IClientService<AdminDbContext> clientService)
+		private IApiResourceService GetApiResourceService(IApiResourceRepository<AdminDbContext> repository, IApiResourceServiceResources resources, IClientService clientService)
 		{
-			IApiResourceService<AdminDbContext> apiResourceService = new ApiResourceService<AdminDbContext>(repository, resources, clientService);
+			IApiResourceService apiResourceService = new ApiResourceService<AdminDbContext>(repository, resources, clientService);
 
 			return apiResourceService;
 		}

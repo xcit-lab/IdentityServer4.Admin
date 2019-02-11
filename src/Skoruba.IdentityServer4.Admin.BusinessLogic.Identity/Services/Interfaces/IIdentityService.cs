@@ -7,8 +7,7 @@ using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Services.Interfaces
 {
-    public interface IIdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
-        where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+    public interface IIdentityService<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
         where TUserDto : UserDto<TUserDtoKey>
         where TUser : IdentityUser<TKey>
         where TRole : IdentityRole<TKey>

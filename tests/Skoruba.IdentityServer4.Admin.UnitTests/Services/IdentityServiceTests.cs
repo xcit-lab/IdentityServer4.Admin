@@ -51,7 +51,7 @@ namespace Skoruba.IdentityServer4.Admin.UnitTests.Services
                 UserIdentityUserToken>(dbContext, userManager, roleManager, mapper);
         }
 
-        private IIdentityService<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity,
+        private IIdentityService<UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity,
             UserIdentityRole, int,
             UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim,
             UserIdentityUserToken> GetIdentityService(IIdentityRepository<AdminDbContext, int, int, UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken> identityRepository,

@@ -16,7 +16,7 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services
 {
-    public class ClientService<TDbContext> : IClientService<TDbContext>
+    public class ClientService<TDbContext> : IClientService
         where TDbContext : DbContext, IAdminConfigurationDbContext
     {
         private readonly IClientRepository<TDbContext> _clientRepository;

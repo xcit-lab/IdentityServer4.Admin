@@ -12,13 +12,16 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Identity.Entities.Identity;
 
 namespace Skoruba.IdentityServer4.Admin.Controllers
 {
-    [Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
-    [TypeFilter(typeof(ControllerExceptionFilterAttribute))]
-    public class IdentityController : BaseIdentityController<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>
-    {
-        public IdentityController(IIdentityService<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken> identityService, ILogger<ConfigurationController> logger, IStringLocalizer<IdentityController> localizer)
-            : base(identityService, logger, localizer)
-        {
-        }
-    }
+	[Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
+	[TypeFilter(typeof(ControllerExceptionFilterAttribute))]
+	public class IdentityController : BaseIdentityController<UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>
+	{
+		public IdentityController(
+			IIdentityService<UserDto<int>, int, RoleDto<int>, int, int, int, UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole, UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken> identityService,
+			ILogger<ConfigurationController> logger,
+			IStringLocalizer<IdentityController> localizer)
+			: base(identityService, logger, localizer)
+		{
+		}
+	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
@@ -10,11 +11,14 @@ using Microsoft.Extensions.Logging;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Dtos.Identity;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Services.Interfaces;
 using Skoruba.IdentityServer4.Admin.BusinessLogic.Shared.Dtos.Common;
+using Skoruba.IdentityServer4.Admin.Configuration.Constants;
+using Skoruba.IdentityServer4.Admin.ExceptionHandling;
 
 namespace Skoruba.IdentityServer4.Admin.Controllers
 {
-    public class BaseIdentityController<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : BaseController
-        where TIdentityDbContext : IdentityDbContext<TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken>
+	[Authorize(Policy = AuthorizationConsts.AdministrationPolicy)]
+	[TypeFilter(typeof(ControllerExceptionFilterAttribute))]
+	public class BaseIdentityController<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> : BaseController
         where TUserDto : UserDto<TUserDtoKey>, new()
         where TRoleDto : RoleDto<TRoleDtoKey>, new()
         where TUser : IdentityUser<TKey>
@@ -28,10 +32,10 @@ namespace Skoruba.IdentityServer4.Admin.Controllers
         where TRoleDtoKey : IEquatable<TRoleDtoKey>
         where TUserDtoKey : IEquatable<TUserDtoKey>
     {
-        private readonly IIdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> _identityService;
+        private readonly IIdentityService<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> _identityService;
         private readonly IStringLocalizer<IdentityController> _localizer;
 
-        public BaseIdentityController(IIdentityService<TIdentityDbContext, TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> identityService,
+        public BaseIdentityController(IIdentityService<TUserDto, TUserDtoKey, TRoleDto, TRoleDtoKey, TUserKey, TRoleKey, TUser, TRole, TKey, TUserClaim, TUserRole, TUserLogin, TRoleClaim, TUserToken> identityService,
             ILogger<ConfigurationController> logger,
             IStringLocalizer<IdentityController> localizer) : base(logger)
         {

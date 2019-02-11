@@ -11,7 +11,7 @@ using Skoruba.IdentityServer4.Admin.EntityFramework.Interfaces;
 
 namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Services
 {
-    public class IdentityResourceService<TDbContext> : IIdentityResourceService<TDbContext>
+    public class IdentityResourceService<TDbContext> : IIdentityResourceService
         where TDbContext : DbContext, IAdminConfigurationDbContext
     {
         private readonly IIdentityResourceRepository<TDbContext> _identityResourceRepository;
