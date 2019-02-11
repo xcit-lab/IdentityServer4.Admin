@@ -208,7 +208,7 @@ namespace Skoruba.IdentityServer4.Admin.Helpers
 
             services.AddLocalization(opts => { opts.ResourcesPath = ConfigurationConsts.ResourcesPath; });
 
-			services.AddMvc()
+			services.AddMvc(o => o.Conventions.Add(new IdentityControllerNameConvention()))
 				.SetCompatibilityVersion(CompatibilityVersion.Version_2_1)
 				.AddViewLocalization(
 					LanguageViewLocationExpanderFormat.Suffix,
