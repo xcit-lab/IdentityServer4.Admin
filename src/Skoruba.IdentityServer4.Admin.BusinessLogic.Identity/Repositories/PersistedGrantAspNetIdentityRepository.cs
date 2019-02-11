@@ -41,30 +41,40 @@ namespace Skoruba.IdentityServer4.Admin.BusinessLogic.Identity.Repositories
 			_persistentGrantDbContext = persistentGrantDbContext;
 		}
 
-        public async Task<PagedList<PersistedGrantDataView>> GetPersitedGrantsByUsers(string search, int page = 1, int pageSize = 10)
-        {
-            var pagedList = new PagedList<PersistedGrantDataView>();
+		public Task<PagedList<PersistedGrantDataView>> GetPersitedGrantsByUsers(string search, int page = 1, int pageSize = 10)
+		{
+			return Task<PagedList<PersistedGrantDataView>>.Run(() =>
+			{
+				var pagedList = new PagedList<PersistedGrantDataView>();
 
-            var persistedGrantByUsers = (from pe in _persistentGrantDbContext.PersistedGrants
-                                         join us in _identityDbContext.Users on pe.SubjectId equals us.Id.ToString() into per
-                                         from us in per.DefaultIfEmpty()
-                                         select new PersistedGrantDataView
-                                         {
-                                             SubjectId = pe.SubjectId,
-                                             SubjectName = us == null ? string.Empty : us.UserName
-                                         })
-                                        .Distinct();
+				var persistedGrantByUsers = (from pe in _persistentGrantDbContext.PersistedGrants.ToList()
+											 join us in _identityDbContext.Users.ToList() on pe.SubjectId equals us.Id.ToString() into per
+											 from us in per.DefaultIfEmpty()
+											 select new PersistedGrantDataView
+											 {
+												 SubjectId = pe.SubjectId,
+												 SubjectName = us == null ? string.Empty : us.UserName
+											 })
+											.Distinct();
 
-            Expression<Func<PersistedGrantDataView, bool>> searchCondition = x => x.SubjectId.Contains(search) || x.SubjectName.Contains(search);
 
-            var persistedGrantsData = await persistedGrantByUsers.WhereIf(!string.IsNullOrEmpty(search), searchCondition).PageBy(x => x.SubjectId, page, pageSize).ToListAsync();
-            var persistedGrantsDataCount = await persistedGrantByUsers.WhereIf(!string.IsNullOrEmpty(search), searchCondition).CountAsync();
+				var persistedGrantsResult = persistedGrantByUsers;
+				if (!string.IsNullOrEmpty(search))
+				{
+					Expression<Func<PersistedGrantDataView, bool>> searchCondition = x => x.SubjectId.Contains(search) || x.SubjectName.Contains(search);
+					Func<PersistedGrantDataView, bool> searchPredicate = searchCondition.Compile();
+					persistedGrantsResult = persistedGrantsResult.Where(searchPredicate);
+				}
 
-            pagedList.Data.AddRange(persistedGrantsData);
-            pagedList.TotalCount = persistedGrantsDataCount;
-            pagedList.PageSize = pageSize;
+				var persistedGrantsData = persistedGrantsResult.AsQueryable().PageBy(x => x.SubjectId, page, pageSize).ToList();
+				var persistedGrantsDataCount = persistedGrantsResult.Count();
 
-            return pagedList;
+				pagedList.Data.AddRange(persistedGrantsData);
+				pagedList.TotalCount = persistedGrantsDataCount;
+				pagedList.PageSize = pageSize;
+
+				return pagedList;
+			});
         }
 
         public async Task<PagedList<PersistedGrant>> GetPersitedGrantsByUser(string subjectId, int page = 1, int pageSize = 10)
