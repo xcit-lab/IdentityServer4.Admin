@@ -42,22 +42,49 @@ namespace Skoruba.IdentityServer4.Admin
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.ConfigureRootConfiguration(Configuration);
-            var rootConfiguration = services.BuildServiceProvider().GetService<IRootConfiguration>();
+			services.ConfigureRootConfiguration(Configuration);
+			var rootConfiguration = services.BuildServiceProvider().GetService<IRootConfiguration>();
 
-            services.AddDbContexts<AdminDbContext>(HostingEnvironment, Configuration);
-            services.AddAuthenticationServices<AdminDbContext, UserIdentity, UserIdentityRole>(HostingEnvironment, rootConfiguration.AdminConfiguration);
-            services.AddMvcExceptionFilters();
+			/// BEFORE: Adds a single data context including the identity context (which enforces the user type).
+			//services.AddDbContexts<AdminDbContext>(HostingEnvironment, Configuration);
+			///
+			/// AFTER: This adds all data contexts that can be administered, except for the identity context (see below).
+			services.AddDbContexts<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminLogDbContext>(HostingEnvironment, Configuration);
 
-            services.AddAdminServices<AdminDbContext>();
+			/// BEFORE: - (new)
+			//
+			/// AFTER: Adds the identity context (mapping to my own application user types).
+			services.AddDbContext<MyApplicationDbContext>(options =>
+				options.UseSqlServer(Configuration.GetConnectionString(ConfigurationConsts.IdentityDbConnectionStringKey),
+					sql => sql.MigrationsAssembly(typeof(MyApplicationDbContext).Assembly.GetName().Name)));
 
-            services.AddAdminAspNetIdentityServices<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int,
-                                UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole,
-                                UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>();
+			/// BEFORE: Adds authentication into the UI, against the single data context and enforcing the user types.
+			//services.AddAuthenticationServices<AdminDbContext, UserIdentity, UserIdentityRole>(HostingEnvironment, rootConfiguration.AdminConfiguration);
+			///
+			/// AFTER: Adds authentication into the UI, against my own application context and user types.
+			services.AddAuthenticationServices<MyApplicationDbContext, MyApplicationUser, MyIdentityRole>(HostingEnvironment, rootConfiguration.AdminConfiguration);
 
-            services.AddMvcLocalization();
-            services.AddAuthorizationPolicies();
-        }
+			/// BEFORE == AFTER. No change.
+			services.AddMvcExceptionFilters();
+
+			/// BEFORE: Adds services that support the UI, binding into the single data context.
+			//services.AddAdminServices<AdminDbContext>();
+			///
+			/// AFTER: Adds services that support the UI, binding into separated data contexts.
+			services.AddAdminServices<IdentityServerConfigurationDbContext, IdentityServerPersistedGrantDbContext, AdminLogDbContext>();
+
+			/// BEFORE: Adds services to modify identity resources, tapping into the single data context and enforced user types.
+			//services.AddAdminAspNetIdentityServices<AdminDbContext, UserDto<int>, int, RoleDto<int>, int, int, int,
+			//                    UserIdentity, UserIdentityRole, int, UserIdentityUserClaim, UserIdentityUserRole,
+			//                    UserIdentityUserLogin, UserIdentityRoleClaim, UserIdentityUserToken>();
+			///
+			/// AFTER: Adds services to modify identity resources from a separated data context and against own user type.
+			services.AddAdminAspNetIdentityServices<MyApplicationDbContext, IdentityServerPersistedGrantDbContext, MyApplicationUser>();
+
+			/// BEFORE == AFTER. No change.
+			services.AddMvcLocalization();
+			services.AddAuthorizationPolicies();
+		}
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
